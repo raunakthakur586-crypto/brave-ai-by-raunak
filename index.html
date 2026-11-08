@@ -36,7 +36,7 @@ textarea{width:100%;resize:none;min-height:54px;max-height:180px;border:0;outlin
   <div class="sidefoot">AI responses can be incorrect. Check important information.</div>
 </aside>
 <main class="main">
-  <header class="top"><button class="mobilemenu" id="mobileNew">＋</button><strong>Brave AI</strong><span class="badge">● Online when configured</span></header>
+  <header class="top"><button class="mobilemenu" id="mobileNew">＋</button><strong>Brave AI</strong><span class="badge">● Online</span></header>
   <section class="chat">
     <div class="welcome" id="welcome">
       <div class="orb">✦</div><h1>What can I help you build?</h1>
@@ -65,6 +65,8 @@ textarea{width:100%;resize:none;min-height:54px;max-height:180px;border:0;outlin
   <div class="notice">Brave AI can make mistakes. Never share passwords or private information.</div>
 </div>
 <script>
+const GEMINI_API_KEY = "YAHAN_APNI_GEMINI_API_KEY_DAALEIN"; // Yahan apni Google Gemini API key daal dein
+
 const $ = id => document.getElementById(id);
 const messagesEl=$("messages"), welcome=$("welcome"), promptEl=$("prompt");
 let chats=JSON.parse(localStorage.getItem("brave_chats")||"[]");
@@ -101,11 +103,27 @@ async function send(){
  busy=true;$("send").disabled=true;
  const typing=document.createElement("div");typing.className="msg";typing.innerHTML='<div class="avatar">✦</div><div class="bubble"><div class="who">Brave AI</div><div class="content">Thinking…</div></div>';messagesEl.append(typing);
  try{
-   const history=current.messages.slice(-16).map(m=>({role:m.role,parts:[{text:m.text}]}));
-   const res=await fetch("/.netlify/functions/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:history})});
-   const data=await res.json();if(!res.ok)throw new Error(data.error||"Request failed");
-   typing.remove();addMessage("model",data.reply||"I couldn't create a response.");
- }catch(e){typing.remove();addMessage("model","Sorry, I couldn't connect. "+e.message+"\n\nCheck that GEMINI_API_KEY is set in Netlify and redeploy.");}
+   const history = current.messages.slice(-16).map(m => ({
+     role: m.role === 'model' ? 'model' : 'user',
+     parts: [{ text: m.text }]
+   }));
+
+   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+     method: "POST",
+     headers: {"Content-Type": "application/json"},
+     body: JSON.stringify({ contents: history })
+   });
+
+   const data = await res.json();
+   if(!res.ok) throw new Error(data.error?.message || "Request failed");
+
+   const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't create a response.";
+   typing.remove();
+   addMessage("model", replyText);
+ }catch(e){
+   typing.remove();
+   addMessage("model","Sorry, I couldn't connect. " + e.message);
+ }
  finally{busy=false;$("send").disabled=false;promptEl.focus()}
 }
 function speakText(text){if(!("speechSynthesis" in window)){alert("Text-to-speech is not supported in this browser.");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.slice(0,5000));u.lang="en-IN";speechSynthesis.speak(u)}
