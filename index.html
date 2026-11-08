@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090b12">
+<title>BRAVE AI BY RAUNAK</title>
+<style>
+:root{color-scheme:dark;--bg:#090b12;--panel:#111522;--panel2:#171d2c;--line:#283147;--text:#f4f6fb;--muted:#9aa5bb;--accent:#8b7cff;--accent2:#40d9c2}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,#22204a 0,transparent 32%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+.app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}.side{background:#0d111b;border-right:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:16px}
+.brand{font-weight:850;letter-spacing:.8px;font-size:18px}.brand span{color:var(--accent2)}.tag{font-size:12px;color:var(--muted);margin-top:-12px}
+button{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:11px 14px;border-radius:12px;font-weight:650;cursor:pointer}button:hover{border-color:var(--accent)}button:disabled{opacity:.5;cursor:wait}
+.primary{background:linear-gradient(120deg,#7162f4,#9b6bff);border:0}.new{width:100%;text-align:left}.history{display:flex;flex-direction:column;gap:7px;overflow:auto}.history button{white-space:nowrap;text-overflow:ellipsis;overflow:hidden;text-align:left;font-weight:500}
+.sidefoot{margin-top:auto;color:var(--muted);font-size:12px}
+.main{display:flex;flex-direction:column;min-width:0;min-height:100vh}.top{height:64px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0c1019c9;backdrop-filter:blur(10px)}
+.badge{font-size:12px;color:var(--accent2);border:1px solid #245c58;border-radius:30px;padding:5px 10px}
+.chat{width:min(900px,100%);margin:0 auto;padding:28px 22px 160px;flex:1}.welcome{text-align:center;padding:10vh 10px 28px}.orb{width:68px;height:68px;border-radius:22px;margin:0 auto 18px;background:linear-gradient(135deg,#7064ff,#36d6c0);display:grid;place-items:center;font-size:30px;box-shadow:0 12px 50px #7468ff55}
+h1{font-size:clamp(28px,5vw,42px);margin:0 0 8px}.welcome p{color:var(--muted);margin:0}.suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:26px auto;max-width:650px}.suggestions button{text-align:left;color:#dce2f1;font-weight:500}
+.messages{display:flex;flex-direction:column;gap:20px}.msg{display:flex;gap:12px;align-items:flex-start}.avatar{flex:0 0 34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#242b40;font-size:14px;font-weight:800}.msg.user .avatar{background:#3c3478}.bubble{min-width:0;max-width:100%;overflow-wrap:anywhere}.who{font-size:12px;color:var(--muted);margin-bottom:5px}.content{white-space:pre-wrap}.content pre{white-space:pre;overflow:auto;background:#080b12;border:1px solid var(--line);padding:14px;border-radius:12px}.content code{font-family:ui-monospace,monospace;background:#20283a;padding:2px 5px;border-radius:5px}.content pre code{background:none;padding:0}.actions{display:flex;gap:7px;margin-top:8px}.actions button{font-size:12px;padding:6px 9px}
+.composer-wrap{position:fixed;bottom:0;left:270px;right:0;padding:18px 22px 14px;background:linear-gradient(transparent,var(--bg) 22%)}.composer{width:min(900px,100%);margin:auto;background:#151b29;border:1px solid #343d55;border-radius:18px;padding:10px;box-shadow:0 12px 45px #0008}
+textarea{width:100%;resize:none;min-height:54px;max-height:180px;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:9px}
+.tools{display:flex;align-items:center;gap:8px}.tools .hint{color:var(--muted);font-size:11px;margin-left:auto}.send{min-width:76px}.notice{text-align:center;color:#778198;font-size:11px;margin-top:8px}
+.mobilemenu{display:none}
+@media(max-width:720px){.app{grid-template-columns:1fr}.side{display:none}.main{min-height:100dvh}.top{padding:0 15px}.mobilemenu{display:inline-block}.chat{padding:18px 14px 170px}.welcome{padding-top:8vh}.suggestions{grid-template-columns:1fr}.composer-wrap{left:0;padding:12px 12px 10px}.tools .hint{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand">BRAVE AI <span>BY RAUNAK</span></div>
+  <div class="tag">Your AI workspace</div>
+  <button class="primary new" id="newChat">＋ New chat</button>
+  <div style="font-size:12px;color:var(--muted);margin-top:8px">RECENT CHATS</div>
+  <div class="history" id="history"></div>
+  <div class="sidefoot">AI responses can be incorrect. Check important information.</div>
+</aside>
+<main class="main">
+  <header class="top"><button class="mobilemenu" id="mobileNew">＋</button><strong>Brave AI</strong><span class="badge">● Online when configured</span></header>
+  <section class="chat">
+    <div class="welcome" id="welcome">
+      <div class="orb">✦</div><h1>What can I help you build?</h1>
+      <p>Ask questions, learn, write code or plan a website.</p>
+      <div class="suggestions">
+        <button data-prompt="Explain how websites work in simple Hindi.">✦ Explain something</button>
+        <button data-prompt="Create a responsive portfolio website in HTML, CSS and JavaScript.">⌘ Build a website</button>
+        <button data-prompt="Write a simple Python program and explain it.">⌁ Write some code</button>
+        <button data-prompt="Teach me five useful English phrases with Hindi meanings.">文 Learn a language</button>
+      </div>
+    </div>
+    <div class="messages" id="messages"></div>
+  </section>
+</main>
+</div>
+<div class="composer-wrap">
+  <div class="composer">
+    <textarea id="prompt" placeholder="Message Brave AI..." rows="1"></textarea>
+    <div class="tools">
+      <button id="mic" title="Speak your message">🎙 Voice</button>
+      <button id="read" title="Read latest answer aloud">🔊 Read</button>
+      <span class="hint">Enter to send · Shift+Enter for new line</span>
+      <button class="primary send" id="send">Send ↑</button>
+    </div>
+  </div>
+  <div class="notice">Brave AI can make mistakes. Never share passwords or private information.</div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const messagesEl=$("messages"), welcome=$("welcome"), promptEl=$("prompt");
+let chats=JSON.parse(localStorage.getItem("brave_chats")||"[]");
+let current= null, busy=false;
+
+function save(){localStorage.setItem("brave_chats",JSON.stringify(chats.slice(-30)));renderHistory()}
+function fresh(){current={id:Date.now(),title:"New chat",messages:[]};chats.unshift(current);save();messagesEl.innerHTML="";welcome.style.display="block";promptEl.focus()}
+function renderHistory(){const box=$("history");box.innerHTML="";chats.forEach(c=>{const b=document.createElement("button");b.textContent=c.title||"New chat";b.onclick=()=>loadChat(c.id);box.append(b)})}
+function loadChat(id){current=chats.find(c=>c.id===id);messagesEl.innerHTML="";welcome.style.display=current.messages.length?"none":"block";current.messages.forEach(m=>addMessage(m.role,m.text,false))}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function formatText(s){
+  let t=escapeHtml(s);
+  t=t.replace(/```([\w+-]*)\n([\s\S]*?)```/g,(_,lang,code)=>`<pre><code>${code.trim()}</code></pre>`);
+  t=t.replace(/`([^`]+)`/g,"<code>$1</code>");
+  t=t.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
+  t=t.replace(/\n/g,"<br>");
+  return t;
+}
+function addMessage(role,text,store=true){
+  welcome.style.display="none";
+  const row=document.createElement("div");row.className="msg "+role;
+  const av=document.createElement("div");av.className="avatar";av.textContent=role==="user"?"R":"✦";
+  const b=document.createElement("div");b.className="bubble";
+  const who=document.createElement("div");who.className="who";who.textContent=role==="user"?"You":"Brave AI";
+  const body=document.createElement("div");body.className="content";body.innerHTML=formatText(text);
+  b.append(who,body);
+  if(role==="model"){const actions=document.createElement("div");actions.className="actions";const copy=document.createElement("button");copy.textContent="Copy";copy.onclick=()=>navigator.clipboard?.writeText(text);const speak=document.createElement("button");speak.textContent="Read aloud";speak.onclick=()=>speakText(text);actions.append(copy,speak);b.append(actions)}
+  row.append(av,b);messagesEl.append(row);row.scrollIntoView({behavior:"smooth",block:"end"});
+  if(store&&current){current.messages.push({role,text});if(current.messages.length===1&&role==="user")current.title=text.slice(0,34);save()}
+}
+async function send(){
+ if(busy)return;const text=promptEl.value.trim();if(!text)return;
+ if(!current)fresh();promptEl.value="";promptEl.style.height="54px";addMessage("user",text);
+ busy=true;$("send").disabled=true;
+ const typing=document.createElement("div");typing.className="msg";typing.innerHTML='<div class="avatar">✦</div><div class="bubble"><div class="who">Brave AI</div><div class="content">Thinking…</div></div>';messagesEl.append(typing);
+ try{
+   const history=current.messages.slice(-16).map(m=>({role:m.role,parts:[{text:m.text}]}));
+   const res=await fetch("/.netlify/functions/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:history})});
+   const data=await res.json();if(!res.ok)throw new Error(data.error||"Request failed");
+   typing.remove();addMessage("model",data.reply||"I couldn't create a response.");
+ }catch(e){typing.remove();addMessage("model","Sorry, I couldn't connect. "+e.message+"\n\nCheck that GEMINI_API_KEY is set in Netlify and redeploy.");}
+ finally{busy=false;$("send").disabled=false;promptEl.focus()}
+}
+function speakText(text){if(!("speechSynthesis" in window)){alert("Text-to-speech is not supported in this browser.");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.slice(0,5000));u.lang="en-IN";speechSynthesis.speak(u)}
+$("send").onclick=send;$("newChat").onclick=fresh;$("mobileNew").onclick=fresh;
+promptEl.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+promptEl.addEventListener("input",()=>{promptEl.style.height="54px";promptEl.style.height=Math.min(promptEl.scrollHeight,180)+"px"});
+$("read").onclick=()=>{const last=[...current?.messages||[]].reverse().find(m=>m.role==="model");if(last)speakText(last.text)};
+document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>{promptEl.value=b.dataset.prompt;send()});
+$("mic").onclick=()=>{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){alert("Voice typing isn't supported here. Try Chrome on Android.");return}
+ const r=new SR();r.lang="hi-IN";r.interimResults=false;r.onresult=e=>{promptEl.value=e.results[0][0].transcript;promptEl.focus()};r.onerror=()=>alert("Microphone didn't work. Check browser permission.");r.start();
+};
+renderHistory();if(chats.length)loadChat(chats[0].id);else fresh();
+</script>
+</body>
+</html>
