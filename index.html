@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -66,7 +65,7 @@ textarea{width:100%;resize:none;min-height:54px;max-height:180px;border:0;outlin
   <div class="notice">Brave AI can make mistakes. Never share passwords or private information.</div>
 </div>
 <script>
-const GEMINI_API_KEY = "YAHAN_APNI_GEMINI_API_KEY_DAALEIN";
+const GEMINI_API_KEY = "AQ.Ab8RN6J6Y8hEBBjqdCBhGhseOIm2W-7LYs4a47RqWObPZiLaUQ";
 
 const $ = id => document.getElementById(id);
 const messagesEl = $("messages"), welcome = $("welcome"), promptEl = $("prompt");
@@ -131,7 +130,7 @@ function addMessage(role, text, store = true) {
   who.className = "who";
   who.textContent = role === "user" ? "You" : "Brave AI";
   const body = document.createElement("div");
-  body.className =`content`;
+  body.className = "content";
   body.innerHTML = formatText(text);
   b.append(who, body);
 
