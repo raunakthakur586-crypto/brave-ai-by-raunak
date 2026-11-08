@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -65,79 +66,200 @@ textarea{width:100%;resize:none;min-height:54px;max-height:180px;border:0;outlin
   <div class="notice">Brave AI can make mistakes. Never share passwords or private information.</div>
 </div>
 <script>
-const GEMINI_API_KEY = "YAHAN_APNI_GEMINI_API_KEY_DAALEIN"; // Yahan apni Google Gemini API key daal dein
+const GEMINI_API_KEY = "YAHAN_APNI_GEMINI_API_KEY_DAALEIN";
 
 const $ = id => document.getElementById(id);
-const messagesEl=$("messages"), welcome=$("welcome"), promptEl=$("prompt");
-let chats=JSON.parse(localStorage.getItem("brave_chats")||"[]");
-let current= null, busy=false;
+const messagesEl = $("messages"), welcome = $("welcome"), promptEl = $("prompt");
+let chats = JSON.parse(localStorage.getItem("brave_chats") || "[]");
+let current = null, busy = false;
 
-function save(){localStorage.setItem("brave_chats",JSON.stringify(chats.slice(-30)));renderHistory()}
-function fresh(){current={id:Date.now(),title:"New chat",messages:[]};chats.unshift(current);save();messagesEl.innerHTML="";welcome.style.display="block";promptEl.focus()}
-function renderHistory(){const box=$("history");box.innerHTML="";chats.forEach(c=>{const b=document.createElement("button");b.textContent=c.title||"New chat";b.onclick=()=>loadChat(c.id);box.append(b)})}
-function loadChat(id){current=chats.find(c=>c.id===id);messagesEl.innerHTML="";welcome.style.display=current.messages.length?"none":"block";current.messages.forEach(m=>addMessage(m.role,m.text,false))}
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function formatText(s){
-  let t=escapeHtml(s);
-  t=t.replace(/```([\w+-]*)\n([\s\S]*?)```/g,(_,lang,code)=>`<pre><code>${code.trim()}</code></pre>`);
-  t=t.replace(/`([^`]+)`/g,"<code>$1</code>");
-  t=t.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
-  t=t.replace(/\n/g,"<br>");
+function save() {
+  localStorage.setItem("brave_chats", JSON.stringify(chats.slice(-30)));
+  renderHistory();
+}
+
+function fresh() {
+  current = { id: Date.now(), title: "New chat", messages: [] };
+  chats.unshift(current);
+  save();
+  messagesEl.innerHTML = "";
+  welcome.style.display = "block";
+  promptEl.focus();
+}
+
+function renderHistory() {
+  const box = $("history");
+  box.innerHTML = "";
+  chats.forEach(c => {
+    const b = document.createElement("button");
+    b.textContent = c.title || "New chat";
+    b.onclick = () => loadChat(c.id);
+    box.append(b);
+  });
+}
+
+function loadChat(id) {
+  current = chats.find(c => c.id === id);
+  messagesEl.innerHTML = "";
+  welcome.style.display = current.messages.length ? "none" : "block";
+  current.messages.forEach(m => addMessage(m.role, m.text, false));
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function formatText(s) {
+  let t = escapeHtml(s);
+  t = t.replace(/```([\w+-]*)\n([\s\S]*?)```/g, (_, lang, code) => `<pre><code>${code.trim()}</code></pre>`);
+  t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
+  t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  t = t.replace(/\n/g, "<br>");
   return t;
 }
-function addMessage(role,text,store=true){
-  welcome.style.display="none";
-  const row=document.createElement("div");row.className="msg "+role;
-  const av=document.createElement("div");av.className="avatar";av.textContent=role==="user"?"R":"✦";
-  const b=document.createElement("div");b.className="bubble";
-  const who=document.createElement("div");who.className="who";who.textContent=role==="user"?"You":"Brave AI";
-  const body=document.createElement("div");body.className="content";body.innerHTML=formatText(text);
-  b.append(who,body);
-  if(role==="model"){const actions=document.createElement("div");actions.className="actions";const copy=document.createElement("button");copy.textContent="Copy";copy.onclick=()=>navigator.clipboard?.writeText(text);const speak=document.createElement("button");speak.textContent="Read aloud";speak.onclick=()=>speakText(text);actions.append(copy,speak);b.append(actions)}
-  row.append(av,b);messagesEl.append(row);row.scrollIntoView({behavior:"smooth",block:"end"});
-  if(store&&current){current.messages.push({role,text});if(current.messages.length===1&&role==="user")current.title=text.slice(0,34);save()}
+
+function addMessage(role, text, store = true) {
+  welcome.style.display = "none";
+  const row = document.createElement("div");
+  row.className = "msg " + role;
+  const av = document.createElement("div");
+  av.className = "avatar";
+  av.textContent = role === "user" ? "R" : "✦";
+  const b = document.createElement("div");
+  b.className = "bubble";
+  const who = document.createElement("div");
+  who.className = "who";
+  who.textContent = role === "user" ? "You" : "Brave AI";
+  const body = document.createElement("div");
+  body.className =`content`;
+  body.innerHTML = formatText(text);
+  b.append(who, body);
+
+  if (role === "model") {
+    const actions = document.createElement("div");
+    actions.className = "actions";
+    const copy = document.createElement("button");
+    copy.textContent = "Copy";
+    copy.onclick = () => navigator.clipboard?.writeText(text);
+    const speak = document.createElement("button");
+    speak.textContent = "Read aloud";
+    speak.onclick = () => speakText(text);
+    actions.append(copy, speak);
+    b.append(actions);
+  }
+
+  row.append(av, b);
+  messagesEl.append(row);
+  row.scrollIntoView({ behavior: "smooth", block: "end" });
+
+  if (store && current) {
+    current.messages.push({ role, text });
+    if (current.messages.length === 1 && role === "user") current.title = text.slice(0, 34);
+    save();
+  }
 }
-async function send(){
- if(busy)return;const text=promptEl.value.trim();if(!text)return;
- if(!current)fresh();promptEl.value="";promptEl.style.height="54px";addMessage("user",text);
- busy=true;$("send").disabled=true;
- const typing=document.createElement("div");typing.className="msg";typing.innerHTML='<div class="avatar">✦</div><div class="bubble"><div class="who">Brave AI</div><div class="content">Thinking…</div></div>';messagesEl.append(typing);
- try{
-   const history = current.messages.slice(-16).map(m => ({
-     role: m.role === 'model' ? 'model' : 'user',
-     parts: [{ text: m.text }]
-   }));
 
-   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-     method: "POST",
-     headers: {"Content-Type": "application/json"},
-     body: JSON.stringify({ contents: history })
-   });
+async function send() {
+  if (busy) return;
+  const text = promptEl.value.trim();
+  if (!text) return;
+  if (!current) fresh();
+  promptEl.value = "";
+  promptEl.style.height = "54px";
+  addMessage("user", text);
+  busy = true;
+  $("send").disabled = true;
 
-   const data = await res.json();
-   if(!res.ok) throw new Error(data.error?.message || "Request failed");
+  const typing = document.createElement("div");
+  typing.className = "msg";
+  typing.innerHTML = '<div class="avatar">✦</div><div class="bubble"><div class="who">Brave AI</div><div class="content">Thinking…</div></div>';
+  messagesEl.append(typing);
 
-   const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't create a response.";
-   typing.remove();
-   addMessage("model", replyText);
- }catch(e){
-   typing.remove();
-   addMessage("model","Sorry, I couldn't connect. " + e.message);
- }
- finally{busy=false;$("send").disabled=false;promptEl.focus()}
+  try {
+    const history = current.messages.slice(-16).map(m => ({
+      role: m.role === 'model' ? 'model' : 'user',
+      parts: [{ text: m.text }]
+    }));
+
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: history })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || "Request failed");
+
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't create a response.";
+    typing.remove();
+    addMessage("model", replyText);
+  } catch (e) {
+    typing.remove();
+    addMessage("model", "Sorry, I couldn't connect. " + e.message);
+  } finally {
+    busy = false;
+    $("send").disabled = false;
+    promptEl.focus();
+  }
 }
-function speakText(text){if(!("speechSynthesis" in window)){alert("Text-to-speech is not supported in this browser.");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.slice(0,5000));u.lang="en-IN";speechSynthesis.speak(u)}
-$("send").onclick=send;$("newChat").onclick=fresh;$("mobileNew").onclick=fresh;
-promptEl.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
-promptEl.addEventListener("input",()=>{promptEl.style.height="54px";promptEl.style.height=Math.min(promptEl.scrollHeight,180)+"px"});
-$("read").onclick=()=>{const last=[...current?.messages||[]].reverse().find(m=>m.role==="model");if(last)speakText(last.text)};
-document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>{promptEl.value=b.dataset.prompt;send()});
-$("mic").onclick=()=>{
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){alert("Voice typing isn't supported here. Try Chrome on Android.");return}
- const r=new SR();r.lang="hi-IN";r.interimResults=false;r.onresult=e=>{promptEl.value=e.results[0][0].transcript;promptEl.focus()};r.onerror=()=>alert("Microphone didn't work. Check browser permission.");r.start();
+
+function speakText(text) {
+  if (!("speechSynthesis" in window)) {
+    alert("Text-to-speech is not supported in this browser.");
+    return;
+  }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.slice(0, 5000));
+  u.lang = "en-IN";
+  speechSynthesis.speak(u);
+}
+
+$("send").onclick = send;
+$("newChat").onclick = fresh;
+$("mobileNew").onclick = fresh;
+
+promptEl.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    send();
+  }
+});
+
+promptEl.addEventListener("input", () => {
+  promptEl.style.height = "54px";
+  promptEl.style.height = Math.min(promptEl.scrollHeight, 180) + "px";
+});
+
+$("read").onclick = () => {
+  const last = [...(current?.messages || [])].reverse().find(m => m.role === "model");
+  if (last) speakText(last.text);
 };
-renderHistory();if(chats.length)loadChat(chats[0].id);else fresh();
+
+document.querySelectorAll("[data-prompt]").forEach(b => b.onclick = () => {
+  promptEl.value = b.dataset.prompt;
+  send();
+});
+
+$("mic").onclick = () => {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    alert("Voice typing isn't supported here. Try Chrome on Android.");
+    return;
+  }
+  const r = new SR();
+  r.lang = "hi-IN";
+  r.interimResults = false;
+  r.onresult = e => {
+    promptEl.value = e.results[0][0].transcript;
+    promptEl.focus();
+  };
+  r.onerror = () => alert("Microphone didn't work. Check browser permission.");
+  r.start();
+};
+
+renderHistory();
+if (chats.length) loadChat(chats[0].id);
+else fresh();
 </script>
 </body>
 </html>
